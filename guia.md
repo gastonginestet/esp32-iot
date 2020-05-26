@@ -82,7 +82,7 @@ return msg;
 
 * Usar "http-request" con 
 
-https://api.openweathermap.org/data/2.5/onecall?lat=-34.920345&lon=-57.969559&lang=es&units=metric&appid=[API-KEY]
+https://api.openweathermap.org/data/2.5/onecall?lat=-34.920345&lon=-57.969559&lang=es&units=metric&appid=[API_KEY]
 
 * Usar json
 * Usar Template por partes ( primero simple, luego agregar el for )
