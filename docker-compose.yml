@@ -2,12 +2,14 @@ version: "2"
 services:
   mqtt:
     image: eclipse-mosquitto
+    volumes:
+      - ./mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf
 
   influxdb:
-    image: influxdb
+    image: influxdb:1.8
     ports:
       - "8086:8086"
-  
+
   nodered:
     image: nodered/node-red
     ports:
@@ -18,3 +20,17 @@ services:
     links:
       - mqtt
       - influxdb
+  
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
+    links:
+      - influxdb
+
+  telegraf:
+    image: telegraf:1.16
+    links:
+      - influxdb
+    volumes:
+      - ./telegraf/telegraf.conf:/etc/telegraf/telegraf.conf
