@@ -1,0 +1,172 @@
+[
+    {
+        "id": "946f5f931c194f97",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "901873395c9db324",
+        "type": "mqtt in",
+        "z": "946f5f931c194f97",
+        "name": "",
+        "topic": "esp32/mediciones",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "b7525fb5be4e1288",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 270,
+        "y": 140,
+        "wires": [
+            [
+                "e7f9ae060d776a4d",
+                "bf7a2f0be63ff66b"
+            ]
+        ]
+    },
+    {
+        "id": "4b3266c6b81b3881",
+        "type": "debug",
+        "z": "946f5f931c194f97",
+        "name": "debug 1",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 810,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "bf7a2f0be63ff66b",
+        "type": "function",
+        "z": "946f5f931c194f97",
+        "name": "abrir/cerrar ventanas",
+        "func": "const temp = msg.payload.temperatura;\n\nif (temp > 30) {\n  msg.payload = \"abrir\";\n} else if (temp < 20) {\n  msg.payload = \"cerrar\";\n} else {\n  return null; // No publica nada\n}\n\nmsg.topic = \"esp32/ventana\";\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 580,
+        "y": 140,
+        "wires": [
+            [
+                "59bf19de722601e1",
+                "4b3266c6b81b3881"
+            ]
+        ]
+    },
+    {
+        "id": "59bf19de722601e1",
+        "type": "mqtt out",
+        "z": "946f5f931c194f97",
+        "name": "",
+        "topic": "esp32/ventana",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "b7525fb5be4e1288",
+        "x": 820,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "d294a08713bfb5bf",
+        "type": "influxdb out",
+        "z": "946f5f931c194f97",
+        "influxdb": "eb85da5fb399a3e6",
+        "name": "",
+        "measurement": "clima",
+        "precision": "",
+        "retentionPolicy": "",
+        "database": "database",
+        "precisionV18FluxV20": "ms",
+        "retentionPolicyV18Flux": "",
+        "org": "organisation",
+        "bucket": "bucket",
+        "x": 880,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "e7f9ae060d776a4d",
+        "type": "function",
+        "z": "946f5f931c194f97",
+        "name": "envío a grafana",
+        "func": "const temp = msg.payload.temperatura;\nconst humedad = msg.payload.humedad;\nconst estado = msg.payload.estado || \"desconocido\";\n\n// Validación mínima\nif (typeof temp !== \"number\" || typeof humedad !== \"number\") {\n  return null;\n}\n\n// Armamos el payload que espera el nodo de InfluxDB\nmsg.payload = {\n  temperatura: temp,\n  humedad: humedad,\n  estado: estado\n};\n\nmsg.measurement = \"clima\";\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 560,
+        "y": 60,
+        "wires": [
+            [
+                "d294a08713bfb5bf"
+            ]
+        ]
+    },
+    {
+        "id": "b7525fb5be4e1288",
+        "type": "mqtt-broker",
+        "name": "mqtt-broker config",
+        "broker": "broker.mqtt.cool",
+        "port": 1883,
+        "clientid": "NodeRedClient_Gaston",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": 4,
+        "keepalive": 60,
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "eb85da5fb399a3e6",
+        "type": "influxdb",
+        "hostname": "influxdb",
+        "port": 8086,
+        "protocol": "http",
+        "database": "iot_data",
+        "name": "",
+        "usetls": false,
+        "tls": "",
+        "influxdbVersion": "1.x",
+        "url": "http://localhost:8086",
+        "timeout": 10,
+        "rejectUnauthorized": true
+    }
+]
